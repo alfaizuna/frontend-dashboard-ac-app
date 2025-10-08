@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
   LayoutDashboard,
@@ -33,10 +33,10 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
   const logoutMutation = useLogout()
 
   const handleLogout = () => {
-    logoutMutation.mutate(undefined, {
-      onSuccess: () => {
-        navigate('/login')
-      },
+    // Gunakan auth store logout dengan callback untuk redirect
+    const { logout } = useAuthStore.getState()
+    logout(() => {
+      navigate('/login')
     })
   }
 
@@ -109,12 +109,12 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
           </div>
           <Button
             variant="outline"
-            size="sm"
-            className="w-full justify-start"
+            size="default"
+            className="w-full justify-start py-3"
             onClick={handleLogout}
             disabled={logoutMutation.isPending}
           >
-            <LogOut className="h-4 w-4 mr-2" />
+            <LogOut className="h-5 w-5 mr-2" />
             {logoutMutation.isPending ? 'Logging out...' : 'Logout'}
           </Button>
         </div>

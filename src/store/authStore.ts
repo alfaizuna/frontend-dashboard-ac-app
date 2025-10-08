@@ -5,7 +5,7 @@ interface AuthState {
   user: User | null
   isAuthenticated: boolean
   setUser: (user: User | null) => void
-  logout: () => void
+  logout: (callback?: () => void) => void
   initializeAuth: () => void
 }
 
@@ -20,15 +20,25 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     })
   },
   
-  logout: () => {
+  logout: (callback?: () => void) => {
+    // Bersihkan semua data dari localStorage
     localStorage.removeItem('access_token')
     localStorage.removeItem('refresh_token')
     localStorage.removeItem('user')
     
+    // Bersihkan semua cache lainnya yang mungkin ada
+    localStorage.clear()
+    
+    // Reset auth state
     set({
       user: null,
       isAuthenticated: false,
     })
+    
+    // Jalankan callback jika ada (untuk redirect)
+    if (callback) {
+      callback()
+    }
   },
   
   initializeAuth: () => {
