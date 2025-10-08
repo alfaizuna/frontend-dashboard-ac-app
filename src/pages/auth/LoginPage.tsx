@@ -1,10 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { motion } from 'framer-motion'
-import { Wind, Mail, Lock } from 'lucide-react'
+import { Wind, Mail, Lock, Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -22,6 +22,8 @@ const LoginPage = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const loginMutation = useLogin()
+  const [showPassword, setShowPassword] = useState(false)
+  const [loginError, setLoginError] = useState<string | null>(null)
   
   const from = location.state?.from?.pathname || '/dashboard'
 
@@ -34,9 +36,17 @@ const LoginPage = () => {
   })
 
   const onSubmit = (data: LoginFormData) => {
+    // Clear previous error
+    setLoginError(null)
+    
     loginMutation.mutate(data, {
       onSuccess: () => {
         navigate(from, { replace: true })
+      },
+      onError: (error: any) => {
+        // Set error message from API response
+        const errorMessage = error.response?.data?.message || 'Terjadi kesalahan saat login'
+        setLoginError(errorMessage)
       },
     })
   }
@@ -89,16 +99,34 @@ const LoginPage = () => {
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
-                    className="pl-10"
+                    className="pl-10 pr-10"
                     {...register('password')}
                   />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-3 h-4 w-4 text-gray-400 hover:text-gray-600 focus:outline-none"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
                 </div>
                 {errors.password && (
                   <p className="text-sm text-red-600">{errors.password.message}</p>
                 )}
               </div>
+
+              {/* Display login error message */}
+              {loginError && (
+                <div className="bg-red-50 border border-red-200 rounded-md p-3">
+                  <p className="text-sm text-red-600">{loginError}</p>
+                </div>
+              )}
 
               <Button
                 type="submit"

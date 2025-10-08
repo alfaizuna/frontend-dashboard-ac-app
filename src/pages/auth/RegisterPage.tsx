@@ -1,10 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { motion } from 'framer-motion'
-import { Wind, Mail, Lock, User, Phone, MapPin } from 'lucide-react'
+import { Wind, Mail, Lock, User, Phone, MapPin, Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -17,7 +17,6 @@ const registerSchema = z.object({
   password: z.string().min(6, 'Password minimal 6 karakter'),
   phone: z.string().min(10, 'Nomor telepon tidak valid').optional(),
   address: z.string().min(10, 'Alamat minimal 10 karakter').optional(),
-  role: z.enum(['customer', 'technician']).default('customer'),
 })
 
 type RegisterFormData = z.infer<typeof registerSchema>
@@ -25,23 +24,20 @@ type RegisterFormData = z.infer<typeof registerSchema>
 const RegisterPage = () => {
   const navigate = useNavigate()
   const registerMutation = useRegister()
+  const [showPassword, setShowPassword] = useState(false)
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
-    defaultValues: {
-      role: 'customer',
-    },
   })
 
-  const selectedRole = watch('role')
-
   const onSubmit = (data: RegisterFormData) => {
-    registerMutation.mutate(data, {
+    // Menambahkan role 'customer' secara otomatis
+    const registerData = { ...data, role: 'customer' as const }
+    registerMutation.mutate(registerData, {
       onSuccess: () => {
         navigate('/dashboard', { replace: true })
       },
@@ -113,27 +109,26 @@ const RegisterPage = () => {
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
-                    className="pl-10"
+                    className="pl-10 pr-10"
                     {...register('password')}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 focus:outline-none"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
                 </div>
                 {errors.password && (
                   <p className="text-sm text-red-600">{errors.password.message}</p>
                 )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="role">Jenis Akun</Label>
-                <select
-                  id="role"
-                  className="w-full px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                  {...register('role')}
-                >
-                  <option value="customer">Customer</option>
-                  <option value="technician">Technician</option>
-                </select>
               </div>
 
               <div className="space-y-2">

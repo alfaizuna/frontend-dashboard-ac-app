@@ -31,7 +31,8 @@ apiClient.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as any
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Only handle 401 errors for token refresh, not login errors
+    if (error.response?.status === 401 && !originalRequest._retry && originalRequest.url !== '/auth/login') {
       originalRequest._retry = true
 
       try {

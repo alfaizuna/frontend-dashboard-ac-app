@@ -44,13 +44,8 @@ export const useLogin = () => {
         description: `Selamat datang kembali, ${data.data.user.name}!`,
       })
     },
-    onError: (error: any) => {
-      toast({
-        variant: 'destructive',
-        title: 'Login Gagal',
-        description: error.response?.data?.message || 'Terjadi kesalahan saat login',
-      })
-    },
+    // Remove onError to prevent toast and potential reload
+    // Error handling will be done in the component level
   })
 }
 
