@@ -118,6 +118,17 @@ export interface AuthResponse {
   }
 }
 
+export interface RegisterResponse {
+  status: string
+  message: string
+  data: {
+    email: string
+    id: number
+    name: string
+    role: string
+  }
+}
+
 export interface DashboardStats {
   total_customers: number
   total_technicians: number

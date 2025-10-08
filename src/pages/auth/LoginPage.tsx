@@ -26,6 +26,7 @@ const LoginPage = () => {
   const [loginError, setLoginError] = useState<string | null>(null)
   
   const from = location.state?.from?.pathname || '/dashboard'
+  const successMessage = location.state?.message // Message from registration
 
   const {
     register,
@@ -120,6 +121,13 @@ const LoginPage = () => {
                   <p className="text-sm text-red-600">{errors.password.message}</p>
                 )}
               </div>
+
+              {/* Display success message from registration */}
+              {successMessage && (
+                <div className="bg-green-50 border border-green-200 rounded-md p-3">
+                  <p className="text-sm text-green-600">{successMessage}</p>
+                </div>
+              )}
 
               {/* Display login error message */}
               {loginError && (

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import apiClient from './client'
-import { AuthResponse, User } from '@/types'
+import { AuthResponse, User, RegisterResponse } from '@/types'
 import { useToast } from '@/hooks/use-toast'
 import { useAuthStore } from '@/store/authStore'
 
@@ -54,31 +54,21 @@ export const useRegister = () => {
   const { setUser } = useAuthStore()
 
   return useMutation({
-    mutationFn: async (data: RegisterRequest): Promise<AuthResponse> => {
+    mutationFn: async (data: RegisterRequest): Promise<RegisterResponse> => {
       const response = await apiClient.post('/auth/register', data)
       return response.data
     },
     onSuccess: (data) => {
-      // Simpan token dan user data ke localStorage
-      localStorage.setItem('access_token', data.data.tokens.access_token)
-      localStorage.setItem('refresh_token', data.data.tokens.refresh_token)
-      localStorage.setItem('user', JSON.stringify(data.data.user))
-      
-      // Update auth store state
-      setUser(data.data.user)
+      // Response structure: { status, message, data: { email, id, name, role } }
+      // Note: Registration endpoint doesn't return tokens, user needs to login separately
       
       toast({
         title: 'Registrasi Berhasil',
-        description: `Selamat datang, ${data.data.user.name}!`,
+        description: `Akun berhasil dibuat untuk ${data.data.name}. Silakan login untuk melanjutkan.`,
       })
     },
-    onError: (error: any) => {
-      toast({
-        variant: 'destructive',
-        title: 'Registrasi Gagal',
-        description: error.response?.data?.message || 'Terjadi kesalahan saat registrasi',
-      })
-    },
+    // Remove onError to prevent toast and handle errors at component level
+    // Error handling will be done in the component level
   })
 }
 

@@ -15,8 +15,8 @@ const registerSchema = z.object({
   name: z.string().min(2, 'Nama minimal 2 karakter'),
   email: z.string().email('Email tidak valid'),
   password: z.string().min(6, 'Password minimal 6 karakter'),
-  phone: z.string().min(10, 'Nomor telepon tidak valid').optional(),
-  address: z.string().min(10, 'Alamat minimal 10 karakter').optional(),
+  phone: z.string().min(10, 'Nomor telepon tidak valid').optional().or(z.literal('')),
+  address: z.string().min(10, 'Alamat minimal 10 karakter').optional().or(z.literal('')),
 })
 
 type RegisterFormData = z.infer<typeof registerSchema>
@@ -25,6 +25,7 @@ const RegisterPage = () => {
   const navigate = useNavigate()
   const registerMutation = useRegister()
   const [showPassword, setShowPassword] = useState(false)
+  const [registerError, setRegisterError] = useState<string | null>(null)
 
   const {
     register,
@@ -35,11 +36,23 @@ const RegisterPage = () => {
   })
 
   const onSubmit = (data: RegisterFormData) => {
+    // Clear previous error
+    setRegisterError(null)
+    
     // Menambahkan role 'customer' secara otomatis
     const registerData = { ...data, role: 'customer' as const }
     registerMutation.mutate(registerData, {
       onSuccess: () => {
-        navigate('/dashboard', { replace: true })
+        // Registration successful, redirect to login page
+        navigate('/login', { 
+          replace: true,
+          state: { message: 'Registrasi berhasil! Silakan login dengan akun Anda.' }
+        })
+      },
+      onError: (error: any) => {
+        // Set error message from API response
+        const errorMessage = error.response?.data?.message || 'Terjadi kesalahan saat registrasi'
+        setRegisterError(errorMessage)
       },
     })
   }
@@ -164,6 +177,13 @@ const RegisterPage = () => {
                   <p className="text-sm text-red-600">{errors.address.message}</p>
                 )}
               </div>
+
+              {/* Display register error message */}
+              {registerError && (
+                <div className="bg-red-50 border border-red-200 rounded-md p-3">
+                  <p className="text-sm text-red-600">{registerError}</p>
+                </div>
+              )}
 
               <Button
                 type="submit"
