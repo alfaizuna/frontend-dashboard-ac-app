@@ -1,13 +1,13 @@
 export interface User {
-  id: string
+  id: number
   email: string
   name: string
   role: 'admin' | 'technician' | 'customer'
   phone?: string
   address?: string
   specialization?: string // for technicians
-  created_at: string
-  updated_at: string
+  created_at?: string
+  updated_at?: string
 }
 
 export interface Customer {
@@ -107,9 +107,15 @@ export interface PaginatedResponse<T> {
 }
 
 export interface AuthResponse {
-  user: User
-  access_token: string
-  refresh_token: string
+  status: string
+  message: string
+  data: {
+    user: User
+    tokens: {
+      access_token: string
+      refresh_token: string
+    }
+  }
 }
 
 export interface DashboardStats {

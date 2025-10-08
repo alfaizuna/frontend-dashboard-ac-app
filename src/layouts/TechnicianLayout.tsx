@@ -47,9 +47,11 @@ const TechnicianLayout: React.FC<TechnicianLayoutProps> = ({ children }) => {
       {/* Sidebar */}
       <motion.aside
         initial={false}
-        animate={{ x: sidebarOpen ? 0 : -280 }}
+        animate={{ 
+          x: typeof window !== 'undefined' && window.innerWidth >= 1024 ? 0 : (sidebarOpen ? 0 : -280)
+        }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
-        className="fixed inset-y-0 left-0 z-50 w-70 bg-white shadow-lg border-r lg:relative lg:translate-x-0"
+        className="fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-lg border-r lg:relative lg:translate-x-0 lg:block"
       >
         <div className="flex h-16 items-center justify-between px-6 border-b">
           <div className="flex items-center gap-2">

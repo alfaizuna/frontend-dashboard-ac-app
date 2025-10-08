@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosResponse } from 'axios'
 import { AuthResponse } from '@/types'
 
-const API_BASE_URL = 'http://localhost:8080/api/v1'
+const API_BASE_URL = 'https://be-app-tukangac.webapz.my.id/api/v1'
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -45,7 +45,7 @@ apiClient.interceptors.response.use(
           { refresh_token: refreshToken }
         )
 
-        const { access_token, refresh_token } = response.data
+        const { access_token, refresh_token } = response.data.data.tokens
         localStorage.setItem('access_token', access_token)
         localStorage.setItem('refresh_token', refresh_token)
 

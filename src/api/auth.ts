@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import apiClient from './client'
 import { AuthResponse, User } from '@/types'
 import { useToast } from '@/hooks/use-toast'
+import { useAuthStore } from '@/store/authStore'
 
 interface LoginRequest {
   email: string
@@ -21,6 +22,7 @@ interface RegisterRequest {
 export const useLogin = () => {
   const queryClient = useQueryClient()
   const { toast } = useToast()
+  const { setUser } = useAuthStore()
 
   return useMutation({
     mutationFn: async (data: LoginRequest): Promise<AuthResponse> => {
@@ -28,15 +30,18 @@ export const useLogin = () => {
       return response.data
     },
     onSuccess: (data) => {
-      localStorage.setItem('access_token', data.access_token)
-      localStorage.setItem('refresh_token', data.refresh_token)
-      localStorage.setItem('user', JSON.stringify(data.user))
+      // Simpan token dan user data ke localStorage
+      localStorage.setItem('access_token', data.data.tokens.access_token)
+      localStorage.setItem('refresh_token', data.data.tokens.refresh_token)
+      localStorage.setItem('user', JSON.stringify(data.data.user))
       
-      queryClient.setQueryData(['user'], data.user)
+      // Update auth store state
+      setUser(data.data.user)
+      queryClient.setQueryData(['user'], data.data.user)
       
       toast({
         title: 'Login Berhasil',
-        description: `Selamat datang kembali, ${data.user.name}!`,
+        description: `Selamat datang kembali, ${data.data.user.name}!`,
       })
     },
     onError: (error: any) => {
@@ -51,6 +56,7 @@ export const useLogin = () => {
 
 export const useRegister = () => {
   const { toast } = useToast()
+  const { setUser } = useAuthStore()
 
   return useMutation({
     mutationFn: async (data: RegisterRequest): Promise<AuthResponse> => {
@@ -58,13 +64,17 @@ export const useRegister = () => {
       return response.data
     },
     onSuccess: (data) => {
-      localStorage.setItem('access_token', data.access_token)
-      localStorage.setItem('refresh_token', data.refresh_token)
-      localStorage.setItem('user', JSON.stringify(data.user))
+      // Simpan token dan user data ke localStorage
+      localStorage.setItem('access_token', data.data.tokens.access_token)
+      localStorage.setItem('refresh_token', data.data.tokens.refresh_token)
+      localStorage.setItem('user', JSON.stringify(data.data.user))
+      
+      // Update auth store state
+      setUser(data.data.user)
       
       toast({
         title: 'Registrasi Berhasil',
-        description: `Selamat datang, ${data.user.name}!`,
+        description: `Selamat datang, ${data.data.user.name}!`,
       })
     },
     onError: (error: any) => {
@@ -101,7 +111,7 @@ export const useLogout = () => {
       // Force logout even if API call fails
       localStorage.removeItem('access_token')
       localStorage.removeItem('refresh_token')
-      localStorage.removeUser('user')
+      localStorage.removeItem('user')
       
       queryClient.clear()
     },
